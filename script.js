@@ -990,6 +990,7 @@ class Puzzle {
         this.srcImage.addEventListener("load", () => imageLoaded(this));
 
         function handleLeave() {
+            console.log("HANDLING LEAVE")
             events.push({ event: 'leave' }); //
         }
 
@@ -1555,11 +1556,10 @@ let moving; // for information about moved piece
                         if (window.save_file[index] === undefined) {
                             let random_rotation = 0
                             if(window.rotations == 90){
-                                random_rotation = (index * 2345.1234) % 4;
+                                random_rotation = Math.floor((index * 2345.1234) % 4);
                             }else if (window.rotations == 180){
-                                random_rotation = int(2 * ((index * 2345.1234) % 2));
+                                random_rotation = Math.floor(2 * Math.floor((index * 2345.1234) % 2));
                             }
-                            console.log("ROTATE TO", random_rotation)
                             window.save_file[index] = 
                             [
                                 (index * 4321.1234) % 0.10, (index * 1234.4321) % 0.5, random_rotation
@@ -1695,6 +1695,10 @@ let moving; // for information about moved piece
                 if (!event) return;
 
                 if (!window.is_connected && !window.play_solo) return;
+
+                if (event.event == "leave") {
+                    moving = null;
+                }
                 
                 if (event.event != "touch") return;
 
@@ -2111,9 +2115,9 @@ function unlockPiece(index) {
         );
         let random_rotation = 0
         if(window.rotations == 90){
-            random_rotation = (index * 2345.1234) % 4;
+            random_rotation = Math.floor((index * 2345.1234) % 4);
         }else if (window.rotations == 180){
-            random_rotation = 2 * ((index * 2345.1234) % 2);
+            random_rotation = Math.floor(2 * Math.floor((index * 2345.1234) % 2));
         }
         pp.rotateTo(random_rotation);
     }else if (accept_pending_actions){
@@ -2245,9 +2249,9 @@ function do_action(key, value, oldValue, bounce){
             if(value == "unlock"){
                 let random_rotation = 0
                 if(window.rotations == 90){
-                    random_rotation = (index * 2345.1234) % 4;
+                    random_rotation = Math.floor((index * 2345.1234) % 4);
                 }else if (window.rotations == 180){
-                    random_rotation = 2 * ((index * 2345.1234) % 2);
+                    random_rotation = Math.floor(2 * Math.floor((index * 2345.1234) % 2));
                 }
                 [x,y,r] = 
                     [
@@ -2268,7 +2272,6 @@ function do_action(key, value, oldValue, bounce){
                     // console.log("moving because of action", key, value, bounce);
                     pp.moveTo(x * puzzle.contWidth, y * puzzle.contHeight);
                     pp.rotateTo(r);
-                    console.log("ROTATE TO", r)
                 }
             }
         } else { // value is an int
@@ -2344,6 +2347,10 @@ window.debug = localStorage.getItem("debug") == "yes";
 
 function rotateCurrentPiece(counter = false){
     if(!moving || typeof moving === 'undefined'){
+        return;
+    }
+    if(!moving.pp){
+        console.log("SOMETHING WEIRD HAPPENS?", moving)
         return;
     }
 
